@@ -25,40 +25,38 @@ var options = {
 };
 
 gulp.task('scss', function() {
-    var stream = development() ? plugins.watch(paths.scss, options.watch) : gulp.src(paths.scss);
-    stream = development() ? stream.pipe(plugins.plumber()) : stream;
-    stream = development() ? stream.pipe(plugins.sourcemaps.init()) : stream;
-    stream = stream.pipe(plugins.sass().on('error', plugins.sass.logError))
-    stream = development() ? stream.pipe(plugins.sourcemaps.write()) : stream;
-    stream = stream.pipe(gulp.dest(paths.outputDir));
+    return production() ? task() : plugins.watch('./source/**/*.scss', options.watch, function() {
+        return task();
+    });
 
-    return stream;
+    function task() {
+        var stream = gulp.src(paths.scss);
+        stream = development() ? stream.pipe(plugins.plumber()) : stream;
+        stream = development() ? stream.pipe(plugins.sourcemaps.init()) : stream;
+        stream = stream.pipe(plugins.sass().on('error', plugins.sass.logError))
+        stream = development() ? stream.pipe(plugins.sourcemaps.write()) : stream;
+        stream = stream.pipe(gulp.dest(paths.outputDir));
+
+        return stream;
+    }
 });
 
 gulp.task('js', function() {
-    return plugins.watch(paths.js, options.watch, function() {
+    return production() ? task() : plugins.watch(paths.js, options.watch, function() {
+       return task();
+    });
+
+    function task() {
         var stream = gulp.src(paths.js);
         stream = development() ? stream.pipe(plugins.plumber()) : stream;
         stream = development() ? stream.pipe(plugins.sourcemaps.init()) : stream;
-        stream = development() ? stream.pipe(plugins.concat('bundle.js')) : stream;
+        stream = stream.pipe(plugins.concat('bundle.js'));
         stream = production() ? stream.pipe(plugins.uglify()) : stream; // only uglify in production
         stream = development() ? stream.pipe(plugins.sourcemaps.write()) : stream;
         stream = stream.pipe(gulp.dest(paths.outputDir));
 
         return stream;
-    });
-/*    var stream = plugins.watch(paths.js, options.watch)
-        .pipe(plugins.concat('bundle.js'))
-        .pipe(gulp.dest(paths.outputDir));*/
-/*    var stream = development() ? plugins.watch(paths.js, options.watch) : gulp.src(paths.js);
-    stream = development() ? stream.pipe(plugins.plumber()) : stream;
-    stream = development() ? stream.pipe(plugins.sourcemaps.init()) : stream;
-    stream = development() ? stream.pipe(plugins.concat('bundle.js')) : stream;
-    stream = production() ? stream.pipe(plugins.uglify()) : stream; // only uglify in production
-    stream = development() ? stream.pipe(plugins.sourcemaps.write()) : stream;
-    stream = stream.pipe(gulp.dest(paths.outputDir));*/
-
-    return stream
+    }
 });
 
 gulp.task('html', function() {
