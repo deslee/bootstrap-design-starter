@@ -10,10 +10,16 @@ var paths = {
         './source/**/*.html'
     ],
     js: [
-        './source/**/*.js'
+        './source/**/*.js',
+        './node_modules/jquery/dist/jquery.js',
+        './node_modules/bootstrap-sass/assets/javascripts/bootstrap/transition.js',
+        './node_modules/bootstrap-sass/assets/javascripts/bootstrap/collapse.js'
     ],
     scss: [
         "./source/scss/style.scss"
+    ],
+    "google-fonts": [
+        './source/google-fonts/**/*'
     ],
     "bs-fonts": [
         './node_modules/bootstrap-sass/assets/fonts/bootstrap/*'
@@ -25,6 +31,11 @@ var options = {
     watch: {
         verbose: true,
         ignoreInitial: false
+    },
+    sass: {
+        outputStyle: {
+
+        }
     }
 };
 
@@ -36,7 +47,17 @@ gulp.task('bs-fonts', ['clean'], function() {
     return stream;
 });
 
+gulp.task('google-fonts', ['clean'], function() {
+    var stream = gulp.src(paths['google-fonts']);
+
+    stream = stream.pipe(gulp.dest(path.join(paths.outputDir, 'fonts')));
+
+    return stream;
+});
+
 gulp.task('scss', ['clean'], function() {
+    options.sass.outputStyle = production() ? 'compressed' : 'nested';
+
     return production() ? task() : plugins.watch('./source/**/*.scss', options.watch, function() {
         return task();
     });
@@ -45,7 +66,7 @@ gulp.task('scss', ['clean'], function() {
         var stream = gulp.src(paths.scss);
         stream = development() ? stream.pipe(plugins.plumber()) : stream;
         stream = development() ? stream.pipe(plugins.sourcemaps.init()) : stream;
-        stream = stream.pipe(plugins.sass().on('error', plugins.sass.logError))
+        stream = stream.pipe(plugins.sass(options.sass).on('error', plugins.sass.logError))
         stream = development() ? stream.pipe(plugins.sourcemaps.write()) : stream;
         stream = stream.pipe(gulp.dest(paths.outputDir));
 
@@ -86,7 +107,7 @@ gulp.task('clean', function() {
     return gulp.src(paths.outputDir).pipe(plugins.clean());
 });
 
-gulp.task('default', ['html', 'js', 'scss', 'bs-fonts'], function() {
+gulp.task('default', ['html', 'js', 'scss', 'bs-fonts', 'google-fonts'], function() {
 });
 
 if (production()) {
