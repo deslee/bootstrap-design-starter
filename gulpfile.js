@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var path = require('path');
 var plugins = require('gulp-load-plugins')();
 var environments = require('gulp-environments'),
     production = environments.production,
@@ -14,6 +15,9 @@ var paths = {
     scss: [
         "./source/scss/style.scss"
     ],
+    "bs-fonts": [
+        './node_modules/bootstrap-sass/assets/fonts/bootstrap/*'
+    ],
     outputDir: './www'
 };
 
@@ -24,7 +28,15 @@ var options = {
     }
 };
 
-gulp.task('scss', function() {
+gulp.task('bs-fonts', ['clean'], function() {
+    var stream = gulp.src(paths["bs-fonts"]);
+
+    stream = stream.pipe(gulp.dest(path.join(paths.outputDir, 'fonts')));
+
+    return stream;
+});
+
+gulp.task('scss', ['clean'], function() {
     return production() ? task() : plugins.watch('./source/**/*.scss', options.watch, function() {
         return task();
     });
@@ -41,7 +53,7 @@ gulp.task('scss', function() {
     }
 });
 
-gulp.task('js', function() {
+gulp.task('js', ['clean'], function() {
     return production() ? task() : plugins.watch(paths.js, options.watch, function() {
        return task();
     });
@@ -59,7 +71,7 @@ gulp.task('js', function() {
     }
 });
 
-gulp.task('html', function() {
+gulp.task('html', ['clean'], function() {
     var stream = development() ? plugins.watch(paths.html, options.watch) : gulp.src(paths.html);
     stream = development() ? stream.pipe(plugins.plumber()) : stream;
     stream = stream.pipe(plugins.html()); // html lint
@@ -70,7 +82,11 @@ gulp.task('html', function() {
     return stream;
 });
 
-gulp.task('default', ['html', 'js', 'scss'], function() {
+gulp.task('clean', function() {
+    return gulp.src(paths.outputDir).pipe(plugins.clean());
+});
+
+gulp.task('default', ['html', 'js', 'scss', 'bs-fonts'], function() {
 });
 
 if (production()) {
