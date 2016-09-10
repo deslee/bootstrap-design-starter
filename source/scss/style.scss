@@ -1,8 +1,8 @@
 @import 'override-variables';
 @import 'bootstrap-custom';
-
-
-body {
-  background: inherit
-}
+@import 'sticky-footer';
+@import 'sidebar-section';
+@import 'google-fonts';
+@import 'blog-post';
+@import 'custom-navbar.scss';
 

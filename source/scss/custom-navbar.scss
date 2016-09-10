@@ -1,0 +1,17 @@
+.navbar-default {
+  background-color: inherit;
+  border: none;
+
+  .navbar-brand {
+    color: $gray-dark;
+  }
+
+  .navbar-collapse {
+    border: none;
+  }
+
+  .navbar-toggle, .navbar-toggle:hover {
+    border: none;
+    background-color: inherit;
+  }
+}
